@@ -1,9 +1,12 @@
 __author__ = 'tan_nguyen'
+
 import numpy as np
 from sklearn import datasets, linear_model
 import matplotlib
+
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+
 
 def generate_data():
     '''
@@ -13,6 +16,7 @@ def generate_data():
     np.random.seed(0)
     X, y = datasets.make_moons(200, noise=0.20)
     return X, y
+
 
 def plot_decision_boundary(pred_func, X, y):
     '''
@@ -36,6 +40,7 @@ def plot_decision_boundary(pred_func, X, y):
     plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Spectral)
     plt.show()
 
+
 ########################################################################################################################
 ########################################################################################################################
 # YOUR ASSSIGMENT STARTS HERE
@@ -46,7 +51,8 @@ class NeuralNetwork(object):
     """
     This class builds and trains a neural network
     """
-    def __init__(self, nn_input_dim, nn_hidden_dim , nn_output_dim, actFun_type='tanh', reg_lambda=0.01, seed=0):
+
+    def __init__(self, nn_input_dim, nn_hidden_dim, nn_output_dim, actFun_type='tanh', reg_lambda=0.01, seed=0):
         '''
         :param nn_input_dim: input dimension
         :param nn_hidden_dim: the number of hidden units
@@ -60,7 +66,7 @@ class NeuralNetwork(object):
         self.nn_output_dim = nn_output_dim
         self.actFun_type = actFun_type
         self.reg_lambda = reg_lambda
-        
+
         # initialize the weights and biases in the network
         np.random.seed(seed)
         self.W1 = np.random.randn(self.nn_input_dim, self.nn_hidden_dim) / np.sqrt(self.nn_input_dim)
@@ -78,13 +84,12 @@ class NeuralNetwork(object):
 
         # YOU IMPLMENT YOUR actFun HERE
         res = None
-        match type:
-            case 'tanh':
-                res = np.tanh(z)
-            case 'sigmoid':
-                res = 1 / (1 + np.exp(-z))
-            case 'relu':
-                res = np.maximum(0, z)
+        if type == 'tanh':
+            res = np.tanh(z)
+        elif type == 'sigmoid':
+            res = 1 / (1 + np.exp(-z))
+        elif type == 'relu':
+            res = np.maximum(0, z)
         return res
 
     def diff_actFun(self, z, type):
@@ -97,14 +102,13 @@ class NeuralNetwork(object):
 
         # YOU IMPLEMENT YOUR diff_actFun HERE
         res = None
-        match type:
-            case 'tanh':
-                res = 1 - np.power(np.tanh(z), 2)
-            case 'sigmoid':
-                sig = 1 / (1 + np.exp(-z))
-                res = sig * (1 - sig)
-            case 'relu':
-                res = 1 * (z > 0)
+        if type == 'tanh':
+            res = 1 - np.power(np.tanh(z), 2)
+        elif type == 'sigmoid':
+            sig = 1 / (1 + np.exp(-z))
+            res = sig * (1 - sig)
+        elif type == 'relu':
+            res = 1 * (z > 0)
         return res
 
     def feedforward(self, X, actFun):
@@ -215,6 +219,7 @@ class NeuralNetwork(object):
         '''
         plot_decision_boundary(lambda x: self.predict(x), X, y)
 
+
 def main():
     # generate and visualize Make-Moons dataset
     X, y = generate_data()
@@ -222,8 +227,9 @@ def main():
     # plt.show()
 
     model = NeuralNetwork(nn_input_dim=2, nn_hidden_dim=3, nn_output_dim=2, actFun_type='tanh')
-    model.fit_model(X,y)
-    model.visualize_decision_boundary(X,y)
+    model.fit_model(X, y)
+    model.visualize_decision_boundary(X, y)
+
 
 if __name__ == "__main__":
     main()
