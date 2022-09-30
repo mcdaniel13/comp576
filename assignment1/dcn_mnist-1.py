@@ -26,7 +26,7 @@ def weight_variable(shape):
     '''
 
     # IMPLEMENT YOUR WEIGHT_VARIABLE HERE
-    initial = tf.truncated_normal(shape=shape, stddev=0.1)
+    initial = tf.truncated_normal(shape, stddev=0.1)
     return tf.Variable(initial)
 
 def bias_variable(shape):
@@ -122,14 +122,14 @@ def main():
     # softmax
     W_fc2 = weight_variable([1024, 10])
     b_fc2 = bias_variable([10])
-    y = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2, name='y')
+    y_conv = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2, name='y_conv')
 
     # FILL IN THE FOLLOWING CODE TO SET UP THE TRAINING
 
     # setup training
-    cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
+    cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y_conv), reduction_indices=[1]))
     train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
-    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+    correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name='accuracy')
 
     # Add a scalar summary for the snapshot loss.
