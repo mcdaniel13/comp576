@@ -1,1 +1,5 @@
 .idea/
+results/
+MNIST_data/
+__pycache__/
+.idea/misc.xml
