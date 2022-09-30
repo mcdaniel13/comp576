@@ -70,16 +70,17 @@ def max_pool_2x2(x):
     # IMPLEMENT YOUR MAX_POOL_2X2 HERE
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
-def variable_summaries(var):
-  with tf.name_scope('summaries'):
+
+def summarize_stats(var, name):
     mean = tf.reduce_mean(var)
-    tf.summary.scalar('mean', mean)
-    with tf.name_scope('stddev'):
-      stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
-    tf.summary.scalar('stddev', stddev)
-    tf.summary.scalar('max', tf.reduce_max(var))
-    tf.summary.scalar('min', tf.reduce_min(var))
-    tf.summary.histogram('histogram', var)
+    std = tf.math.reduce_std(var)
+
+    tf.summary.scalar('min_' + name, tf.reduce_min(var))
+    tf.summary.scalar('max_' + name, tf.reduce_max(var))
+    tf.summary.scalar('mean_' + name, mean)
+    tf.summary.scalar('standard_deviation_' + name, std)
+    tf.summary.histogram('histogram_' + name, var)
+
 
 def main():
     # Specify training parameters
@@ -99,36 +100,56 @@ def main():
 
     # first convolutional layer
     W_conv1 = weight_variable([5, 5, 1, 32])
+    summarize_stats(W_conv1, 'W_conv1')
     b_conv1 = bias_variable([32])
-    h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
+    summarize_stats(b_conv1, 'b_conv1')
+    # h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
+    h_conv1 = tf.nn.tanh(conv2d(x_image, W_conv1) + b_conv1)
+    summarize_stats(h_conv1, 'h_conv1')
     h_pool1 = max_pool_2x2(h_conv1)
+    summarize_stats(h_pool1, 'h_pool1')
 
     # second convolutional layer
     W_conv2 = weight_variable([5, 5, 32, 64])
+    summarize_stats(W_conv2, 'W_conv2')
     b_conv2 = bias_variable([64])
-    h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
+    summarize_stats(b_conv2, 'b_conv2')
+    # h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
+    h_conv2 = tf.nn.tanh(conv2d(h_pool1, W_conv2) + b_conv2)
+    summarize_stats(h_conv2, 'h_conv2')
     h_pool2 = max_pool_2x2(h_conv2)
+    summarize_stats(h_pool2, 'h_pool2')
 
     # densely connected layer
     W_fc1 = weight_variable([7 * 7 * 64, 1024])
+    summarize_stats(W_fc1, 'W_fc1')
     b_fc1 = bias_variable([1024])
+    summarize_stats(b_fc1, 'b_fc1')
     h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
+    summarize_stats(h_pool2_flat, 'h_pool2_flat')
     h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+    summarize_stats(h_fc1, 'h_fc1')
 
     # dropout
     keep_prob = tf.placeholder(tf.float32)
+    summarize_stats(keep_prob, 'keep_prob')
     h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+    summarize_stats(h_fc1_drop, 'h_fc1_drop')
 
     # softmax
     W_fc2 = weight_variable([1024, 10])
+    summarize_stats(W_fc2, 'W_fc2')
     b_fc2 = bias_variable([10])
+    summarize_stats(b_fc2, 'b_fc2')
     y_conv = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2, name='y_conv')
+    summarize_stats(y_conv, 'y_conv')
 
     # FILL IN THE FOLLOWING CODE TO SET UP THE TRAINING
 
     # setup training
     cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y_conv), reduction_indices=[1]))
-    train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+    # train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+    train_step = tf.train.GradientDescentOptimizer(1e-4).minimize(cross_entropy)
     correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name='accuracy')
 
