@@ -3,3 +3,10 @@ results/
 MNIST_data/
 __pycache__/
 .idea/misc.xml
+assignment2/CIFAR10/
+Lib/
+Scripts/
+pyvenv.cfg
+.idea/misc.xml
+.idea/comp576.iml
+assignment2/.ipynb_checkpoints/
